@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TopoMark</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div id="app">
+    <header>
+      <h1>TopoMark</h1>
+      <span id="bookmarkCount">0 书签</span>
+    </header>
+
+    <div id="toolbar">
+      <button id="btnClassify" class="btn primary">分类</button>
+      <button id="btnOpenAll" class="btn secondary" disabled>全部打开</button>
+      <select id="selectIntervals">
+        <option value="3">3 区间</option>
+        <option value="5" selected>5 区间</option>
+        <option value="8">8 区间</option>
+        <option value="12">12 区间</option>
+      </select>
+    </div>
+
+    <div id="loading" class="hidden">
+      <div class="spinner"></div>
+      <span>正在分析书签拓扑结构...</span>
+    </div>
+
+    <div id="mainContent" class="hidden">
+      <div id="graphContainer">
+        <canvas id="graphCanvas"></canvas>
+      </div>
+
+      <div id="sidebar" class="hidden">
+        <h3 id="sidebarTitle">节点详情</h3>
+        <div id="sidebarBookmarks"></div>
+      </div>
+    </div>
+
+    <div id="emptyState" class="hidden">
+      <p>没有找到书签。</p>
+      <p>请先在浏览器中添加一些书签。</p>
+    </div>
+
+    <footer>
+      <span id="statusText">就绪</span>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

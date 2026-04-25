@@ -1,0 +1,17 @@
+{
+  "name": "topo-mark-extension",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "bash scripts/build.sh",
+    "watch": "bun build src/background.ts --outdir=dist --target=browser --watch & bun build src/popup/popup.ts --outdir=dist/popup --target=browser --watch",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/chrome": "^0.1.40"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}

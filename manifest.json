@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "TopoMark - Bookmark Topological Classifier",
+  "version": "1.0.0",
+  "description": "使用拓扑数据分析（TDA Mapper）算法对书签进行智能分类",
+  "permissions": [
+    "bookmarks",
+    "storage"
+  ],
+  "background": {
+    "service_worker": "dist/background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "dist/popup/popup.html",
+    "default_title": "TopoMark"
+  },
+  "icons": {
+    "16": "dist/icons/icon.svg",
+    "48": "dist/icons/icon.svg",
+    "128": "dist/icons/icon.svg"
+  }
+}

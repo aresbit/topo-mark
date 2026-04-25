@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e94560"/>
+      <stop offset="100%" stop-color="#533483"/>
+    </linearGradient>
+  </defs>
+  <circle cx="64" cy="64" r="60" fill="url(#g)" opacity="0.9"/>
+  <circle cx="64" cy="64" r="60" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+  <!-- Simplified Mapper graph nodes -->
+  <circle cx="44" cy="50" r="10" fill="rgba(255,255,255,0.9)"/>
+  <circle cx="84" cy="45" r="8" fill="rgba(255,255,255,0.9)"/>
+  <circle cx="64" cy="78" r="12" fill="rgba(255,255,255,0.9)"/>
+  <!-- Edges -->
+  <line x1="44" y1="50" x2="84" y2="45" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+  <line x1="44" y1="50" x2="64" y2="78" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+  <line x1="84" y1="45" x2="64" y2="78" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+  <!-- Bookmark mark -->
+  <path d="M58 2 L70 2 L70 14 L64 10 L58 14 Z" fill="rgba(255,255,255,0.6)" transform="translate(54,64)"/>
+</svg>
