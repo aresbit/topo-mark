@@ -14,13 +14,26 @@
     </header>
 
     <div id="toolbar">
+      <button id="btnBack" class="btn secondary hidden">返回</button>
       <button id="btnClassify" class="btn primary">分类</button>
-      <button id="btnOpenAll" class="btn secondary" disabled>全部打开</button>
-      <select id="selectIntervals">
-        <option value="3">3 区间</option>
-        <option value="5" selected>5 区间</option>
-        <option value="8">8 区间</option>
-        <option value="12">12 区间</option>
+      <div id="folderPicker" class="folder-picker">
+        <button id="folderButton" class="folder-button" type="button" title="选择要分析的书签目录">
+          <span id="folderLabel">全部书签</span>
+          <span class="chevron">⌄</span>
+        </button>
+        <div id="folderMenu" class="folder-menu hidden" role="listbox"></div>
+      </div>
+      <span id="viewTitle" class="hidden">全部书签</span>
+      <label class="field-label" for="selectIntervals">分析粒度</label>
+      <select
+        id="selectIntervals"
+        aria-label="分析粒度"
+        title="分析粒度越细，越容易分出小主题；越粗，越容易合并成大主题。"
+      >
+        <option value="3">粗略</option>
+        <option value="5" selected>标准</option>
+        <option value="8">细致</option>
+        <option value="12">更细</option>
       </select>
     </div>
 

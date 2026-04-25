@@ -1,8 +1,9 @@
 /**
- * Simple agglomerative (single-linkage) clustering.
+ * Browser-safe greedy clustering.
  *
  * Given a subset of data points (identified by `indices` into the
- * full feature matrix), cluster them based on cosine distance.
+ * full feature matrix), cluster them based on cosine distance without
+ * building an O(n^2) distance matrix.
  */
 
 function cosineDist(a: Float64Array, b: Float64Array): number {
@@ -10,9 +11,11 @@ function cosineDist(a: Float64Array, b: Float64Array): number {
     na = 0,
     nb = 0;
   for (let i = 0; i < a.length; i++) {
-    dot += a[i] * b[i];
-    na += a[i] * a[i];
-    nb += b[i] * b[i];
+    const av = a[i] ?? 0;
+    const bv = b[i] ?? 0;
+    dot += av * bv;
+    na += av * av;
+    nb += bv * bv;
   }
   const denom = Math.sqrt(na) * Math.sqrt(nb);
   return denom < 1e-12 ? 1 : 1 - dot / denom;
@@ -34,54 +37,39 @@ export function clusterSubset(
   const n = indices.length;
   if (n === 0) return [];
   if (n === 1) return [0];
-  if (n < 3) return [0]; // tiny groups stay together
+  if (n < 3) return new Array(n).fill(0); // tiny groups stay together
 
-  // Build distance matrix for the subset
-  const dist: number[][] = Array.from({ length: n }, () => new Array(n).fill(0));
-  for (let i = 0; i < n; i++) {
-    for (let j = i + 1; j < n; j++) {
-      const d = cosineDist(featureMatrix[indices[i]!]!, featureMatrix[indices[j]!]!);
-      dist[i]![j] = d;
-      dist[j]![i] = d;
-    }
-  }
-
-  // Union-Find for agglomerative clustering
-  const parent = new Array(n).fill(0).map((_, i) => i);
-  function find(x: number): number {
-    while (parent[x] !== x) {
-      parent[x] = parent[parent[x]!]!;
-      x = parent[x]!;
-    }
-    return x;
-  }
-  function union(a: number, b: number): void {
-    parent[find(a)] = find(b);
-  }
-
-  // Single-linkage: merge closest pair below threshold
-  // Sort all pairs by distance
-  const pairs: [number, number, number][] = [];
-  for (let i = 0; i < n; i++) {
-    for (let j = i + 1; j < n; j++) {
-      pairs.push([dist[i]![j]!, i, j]);
-    }
-  }
-  pairs.sort((a, b) => a[0] - b[0]);
-
-  for (const [d, i, j] of pairs) {
-    if (d > threshold) break;
-    union(i, j);
-  }
-
-  // Assign final cluster labels (compacted)
-  const labelMap = new Map<number, number>();
+  const centroids: Float64Array[] = [];
+  const counts: number[] = [];
   const labels = new Array<number>(n);
-  let nextLabel = 0;
+
   for (let i = 0; i < n; i++) {
-    const root = find(i);
-    if (!labelMap.has(root)) labelMap.set(root, nextLabel++);
-    labels[i] = labelMap.get(root)!;
+    const vector = featureMatrix[indices[i]!]!;
+    let bestCluster = -1;
+    let bestDistance = Infinity;
+
+    for (let cluster = 0; cluster < centroids.length; cluster++) {
+      const distance = cosineDist(vector, centroids[cluster]!);
+      if (distance < bestDistance) {
+        bestDistance = distance;
+        bestCluster = cluster;
+      }
+    }
+
+    if (bestCluster === -1 || bestDistance > threshold) {
+      bestCluster = centroids.length;
+      centroids.push(new Float64Array(vector));
+      counts.push(1);
+    } else {
+      const centroid = centroids[bestCluster]!;
+      const nextCount = (counts[bestCluster] ?? 0) + 1;
+      for (let j = 0; j < centroid.length; j++) {
+        centroid[j] = ((centroid[j] ?? 0) * (nextCount - 1) + (vector[j] ?? 0)) / nextCount;
+      }
+      counts[bestCluster] = nextCount;
+    }
+
+    labels[i] = bestCluster;
   }
 
   return labels;

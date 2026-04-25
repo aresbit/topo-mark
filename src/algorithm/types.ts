@@ -29,6 +29,16 @@ export interface MapperNode {
   id: number;
   size: number;
   bookmarkIds: string[];
+  label?: string;
+  summary?: ClusterSummary;
+}
+
+/** Human-readable explanation for a Mapper node */
+export interface ClusterSummary {
+  title: string;
+  domains: string[];
+  folders: string[];
+  terms: string[];
 }
 
 /** An edge in the Mapper graph */

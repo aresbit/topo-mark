@@ -36,7 +36,14 @@ export function flattenBookmarks(
  * Read all bookmarks from Chrome API and flatten them.
  * Falls back to a default folder if the root returns an unexpected structure.
  */
-export async function readAllBookmarks(): Promise<BookmarkItem[]> {
+export async function readAllBookmarks(folderId?: string): Promise<BookmarkItem[]> {
+  if (folderId) {
+    const nodes = await chrome.bookmarks.getSubTree(folderId);
+    const root = nodes[0];
+    if (!root) return [];
+    return flattenBookmarks([root]);
+  }
+
   const tree = await chrome.bookmarks.getTree();
   const root = tree[0];
   if (!root || !root.children) return [];

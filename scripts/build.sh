@@ -24,10 +24,8 @@ echo ">> Copying static assets..."
 cp src/popup/popup.html dist/popup/
 cp src/popup/popup.css dist/popup/
 
-# Copy icons
-cp icons/icon.svg dist/icons/
-# Chrome needs PNG icons; use SVG as fallback, and create a copy as icon.png
-# For production, convert SVG to PNG at multiple sizes
+# Generate Chrome-compatible PNG icons.
+bun scripts/generate-icons.ts
 
 echo "=== Build complete ==="
 echo "dist/ layout:"

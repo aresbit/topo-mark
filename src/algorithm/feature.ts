@@ -76,7 +76,7 @@ export function extractFeatures(
     // Title tokens
     for (const token of tokenize(item.title)) {
       const idx = useVocab.get(token);
-      if (idx !== undefined) vec[idx]++;
+      if (idx !== undefined) vec[idx] = (vec[idx] ?? 0) + 1;
     }
 
     // Domain tokens
@@ -84,7 +84,7 @@ export function extractFeatures(
       const domain = new URL(item.url).hostname;
       for (const token of tokenize(domain)) {
         const idx = useVocab.get(token);
-        if (idx !== undefined) vec[idx]++;
+        if (idx !== undefined) vec[idx] = (vec[idx] ?? 0) + 1;
       }
     } catch {
       // skip

@@ -30,8 +30,12 @@ export class CubicalCover {
     const n = lens.length;
     if (n === 0) return [];
 
-    const min = lens[0]!;
-    const max = lens[n - 1]!;
+    let min = lens[0]!;
+    let max = lens[0]!;
+    for (const value of lens) {
+      min = Math.min(min, value);
+      max = Math.max(max, value);
+    }
     const range = max - min || 1;
     const intervalSize = range / this.nIntervals;
     const overlap = intervalSize * this.overlapFrac;

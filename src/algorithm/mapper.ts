@@ -18,6 +18,7 @@ import type {
   MapperNode,
   MapperEdge,
   ComponentMap,
+  ClusterSummary,
 } from "./types";
 
 import { extractFeatures } from "./feature";
@@ -33,6 +34,13 @@ export const DEFAULT_CONFIG: MapperConfig = {
   featureDim: 100,
   pcaDim: 1,
 };
+
+const STOP_WORDS = new Set([
+  "the", "and", "for", "with", "from", "that", "this", "you", "your", "are",
+  "how", "what", "why", "can", "will", "not", "have", "has", "into", "about",
+  "http", "https", "www", "com", "org", "net", "html", "page", "index",
+  "bookmark", "bookmarks",
+]);
 
 /**
  * Run the full Mapper classification pipeline.
@@ -145,6 +153,15 @@ export function runMapper(
   // Compute connected components (for coloring)
   const components = findComponents(nodeList, edges);
 
+  const bookmarkById = new Map(bookmarks.map((bookmark) => [bookmark.id, bookmark]));
+  for (const node of nodeList) {
+    const nodeBookmarks = node.bookmarkIds
+      .map((id) => bookmarkById.get(id))
+      .filter((bookmark) => bookmark !== undefined);
+    node.summary = summarizeCluster(nodeBookmarks);
+    node.label = node.summary.title;
+  }
+
   // Build nodeLabels: for each bookmark, which nodes it belongs to
   const nodeLabels: number[] = [];
   const lookup = new Map<string, MapperNode>();
@@ -171,6 +188,62 @@ export function runMapper(
     nodeLabels,
     components,
   };
+}
+
+function summarizeCluster(bookmarks: BookmarkItem[]): ClusterSummary {
+  const domains = topValues(bookmarks, (bookmark) => {
+    try {
+      return new URL(bookmark.url).hostname.replace(/^www\./, "");
+    } catch {
+      return "";
+    }
+  }, 3);
+
+  const folders = topValues(bookmarks, (bookmark) => {
+    const path = bookmark.folderPath.filter(Boolean);
+    return path[path.length - 1] ?? "";
+  }, 3);
+
+  const terms = topTerms(bookmarks, 6);
+  const title = terms[0] ?? folders[0] ?? domains[0] ?? "未命名主题";
+
+  return { title, domains, folders, terms };
+}
+
+function topValues(
+  bookmarks: BookmarkItem[],
+  getValue: (bookmark: BookmarkItem) => string,
+  limit: number
+): string[] {
+  const counts = new Map<string, number>();
+  for (const bookmark of bookmarks) {
+    const value = getValue(bookmark).trim();
+    if (!value) continue;
+    counts.set(value, (counts.get(value) ?? 0) + 1);
+  }
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, limit)
+    .map(([value]) => value);
+}
+
+function topTerms(bookmarks: BookmarkItem[], limit: number): string[] {
+  const counts = new Map<string, number>();
+  for (const bookmark of bookmarks) {
+    const tokens = `${bookmark.title} ${bookmark.folderPath.join(" ")}`
+      .toLowerCase()
+      .replace(/[^a-z0-9\u4e00-\u9fff]+/g, " ")
+      .split(/\s+/)
+      .filter((token) => token.length > 1 && !/^\d+$/.test(token) && !STOP_WORDS.has(token));
+
+    for (const token of tokens) {
+      counts.set(token, (counts.get(token) ?? 0) + 1);
+    }
+  }
+  return [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, limit)
+    .map(([term]) => term);
 }
 
 function findComponents(

@@ -16,8 +16,8 @@
     "default_title": "TopoMark"
   },
   "icons": {
-    "16": "dist/icons/icon.svg",
-    "48": "dist/icons/icon.svg",
-    "128": "dist/icons/icon.svg"
+    "16": "dist/icons/icon16.png",
+    "48": "dist/icons/icon48.png",
+    "128": "dist/icons/icon128.png"
   }
 }

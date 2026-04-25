@@ -8,24 +8,24 @@
 function meanCenter(matrix: Float64Array[], k: number): Float64Array {
   const mean = new Float64Array(k);
   for (const row of matrix) {
-    for (let j = 0; j < k; j++) mean[j] += row[j];
+    for (let j = 0; j < k; j++) mean[j] = (mean[j] ?? 0) + (row[j] ?? 0);
   }
-  for (let j = 0; j < k; j++) mean[j] /= matrix.length;
+  for (let j = 0; j < k; j++) mean[j] = (mean[j] ?? 0) / matrix.length;
   for (const row of matrix) {
-    for (let j = 0; j < k; j++) row[j] -= mean[j];
+    for (let j = 0; j < k; j++) row[j] = (row[j] ?? 0) - (mean[j] ?? 0);
   }
   return mean;
 }
 
 function dot(a: Float64Array, b: Float64Array): number {
   let sum = 0;
-  for (let i = 0; i < a.length; i++) sum += a[i] * b[i];
+  for (let i = 0; i < a.length; i++) sum += (a[i] ?? 0) * (b[i] ?? 0);
   return sum;
 }
 
 function normalize(v: Float64Array): void {
   const len = Math.sqrt(dot(v, v));
-  if (len > 1e-12) for (let i = 0; i < v.length; i++) v[i] /= len;
+  if (len > 1e-12) for (let i = 0; i < v.length; i++) v[i] = (v[i] ?? 0) / len;
 }
 
 function powerIteration(
@@ -44,18 +44,18 @@ function powerIteration(
     // First compute t = X^T * v
     const t = new Float64Array(matrix.length);
     for (let i = 0; i < matrix.length; i++) {
-      t[i] = dot(matrix[i], v);
+      t[i] = dot(matrix[i]!, v);
     }
     // Then compute vNext = X * t
     for (let i = 0; i < matrix.length; i++) {
       for (let j = 0; j < dim; j++) {
-        vNext[j] += t[i] * matrix[i][j];
+        vNext[j] = (vNext[j] ?? 0) + (t[i] ?? 0) * (matrix[i]![j] ?? 0);
       }
     }
     normalize(vNext);
     // Check convergence
     let diff = 0;
-    for (let j = 0; j < dim; j++) diff += Math.abs(vNext[j] - v[j]);
+    for (let j = 0; j < dim; j++) diff += Math.abs((vNext[j] ?? 0) - (v[j] ?? 0));
     v.set(vNext);
     if (diff < 1e-8) break;
   }
@@ -87,13 +87,13 @@ export function pca(
   for (let pc = 0; pc < k; pc++) {
     const pcDir = powerIteration(working, dim);
     for (let i = 0; i < vectors.length; i++) {
-      result[i]![pc] = dot(working[i], pcDir);
+      result[i]![pc] = dot(working[i]!, pcDir);
     }
     // Deflate: subtract projection onto this PC
     for (const row of working) {
       const proj = dot(row, pcDir);
       for (let j = 0; j < dim; j++) {
-        row[j] -= proj * pcDir[j];
+        row[j] = (row[j] ?? 0) - proj * (pcDir[j] ?? 0);
       }
     }
   }
